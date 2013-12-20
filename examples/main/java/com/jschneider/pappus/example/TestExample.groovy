@@ -1,11 +1,10 @@
-package com.jschneider.gom.example;
+package com.jschneider.pappus.example;
 
 import static org.junit.Assert.*
 
 import org.junit.Test
 
-import com.jschneider.gom.GraphObjectMapper
-import com.jschneider.gom.GremlinModelSteps
+import com.jschneider.pappus.GraphObjectMapper
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin

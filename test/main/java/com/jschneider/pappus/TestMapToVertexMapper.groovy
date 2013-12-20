@@ -1,4 +1,4 @@
-package com.jschneider.gom
+package com.jschneider.pappus
 
 import static org.junit.Assert.*
 

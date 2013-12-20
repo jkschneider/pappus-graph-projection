@@ -1,4 +1,4 @@
-package com.jschneider.gom.example;
+package com.jschneider.pappus.example;
 
 public class Person {
 	String name
