@@ -38,8 +38,14 @@ public class RecursiveMapHasher {
 				hasher.putLong(hash((Map<Object,Object>) e));
 			else if(Collection.class.isAssignableFrom(e.getClass()))
 				putHash((Collection<Object>) e, hasher);
-			else if(Number.class.isAssignableFrom(e.getClass()))
+			else if(Integer.class.isAssignableFrom(e.getClass()))
+				hasher.putInt((Integer) e);
+			else if(Long.class.isAssignableFrom(e.getClass()))
 				hasher.putLong((Long) e);
+			else if(Double.class.isAssignableFrom(e.getClass()))
+				hasher.putDouble((Double) e);
+			else if(Float.class.isAssignableFrom(e.getClass()))
+				hasher.putFloat((Float) e);
 			else
 				hasher.putUnencodedChars(e.toString());
 		}

@@ -1,8 +1,10 @@
 package com.jschneider.pappus.example;
 
+import org.joda.time.LocalDate
+
 public class Person {
 	String name
 	Address address
-	Integer age
+	LocalDate birthDate
 	List<Car> cars = []
 }
