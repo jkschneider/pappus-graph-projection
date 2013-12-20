@@ -80,7 +80,7 @@ public class MapToVertexMapper {
 					for(Object e3 : e2) {
 						Vertex v2 = toGraph((Map<Object, Object>) e3, getChildType(e.getKey().toString(), c));
 						Edge edge = v.addEdge(nameTools.depluralize(e.getKey().toString()), v2);
-						edge.setProperty("_collectionIndex", i++);
+						edge.setProperty("_index", i++);
 					}
 				}
 				else
@@ -103,8 +103,8 @@ public class MapToVertexMapper {
 		@Override
 		public int compare(Edge edge1, Edge edge2) {
 			if(edge1.getLabel().equals(edge2.getLabel())) {
-				// descending order by _collectionIndex
-				return (int) edge2.getProperty("_collectionIndex") - (int) edge1.getProperty("_collectionIndex");
+				// descending order by _index
+				return (int) edge2.getProperty("_index") - (int) edge1.getProperty("_index");
 			}
 			return edge1.getLabel().compareTo(edge2.getLabel());
 		}
@@ -123,9 +123,9 @@ public class MapToVertexMapper {
 		
 		Edge e;
 		while((e = edgeQueue.poll()) != null) {
-			if(e.getProperty("_collectionIndex") != null) {
+			if(e.getProperty("_index") != null) {
 				if(!e.getLabel().equals(collectionLabel)) {
-					collection = new ArrayList<Map<Object, Object>>((int) e.getProperty("_collectionIndex"));
+					collection = new ArrayList<Map<Object, Object>>((int) e.getProperty("_index"));
 					map.put(nameTools.pluralize(e.getLabel()), collection);
 				}
 				

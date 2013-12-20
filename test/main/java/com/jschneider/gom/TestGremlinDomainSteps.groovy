@@ -23,7 +23,7 @@ class TestGremlinDomainSteps extends AbstractBenchmark {
 	@BeforeClass
 	static void beforeClass() {
 		Gremlin.load()
-		GremlinDomainSteps.load()
+		GremlinModelSteps.load()
 		
 		g = new TinkerGraph()
 		a1 = g.addVertex(null)
