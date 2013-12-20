@@ -1,4 +1,4 @@
-Pappus Graph Object Projection Framework
+Pappus Graph-Object Projection Framework
 ----------------------------------------
 
 ![Simple Model](https://github.com/jkschneider/pappus-graph-projection/wiki/img/projection.jpg)
@@ -9,7 +9,7 @@ Features
 --------
 
 * Automatically projects Java object models to graphs without requiring any annotations.
-* Provides a `model` Gremlin step that locates model objects matching the specified type whose subgraphs contain vertices matching by the preceding step.
+* Provides a `model` Gremlin step that locates model objects matching the specified type whose subgraphs contain vertices matched by the preceding step.
 * Preserves the order of `Collection`-based fields.
 * Automatically deduplicates isomorphic subgraphs.
 * Supports time slicing of model objects to maintain history
