@@ -1,5 +1,5 @@
 Pappus Graph Object Projection Framework
-========================================
+----------------------------------------
 
 ![Simple Model](https://github.com/jkschneider/pappus-graph-projection/wiki/img/projection.jpg)
 
