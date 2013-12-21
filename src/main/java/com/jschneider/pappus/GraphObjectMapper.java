@@ -1,4 +1,4 @@
-package com.jschneider.gom;
+package com.jschneider.pappus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class GraphObjectMapper {
 	public ObjectMapper getObjectMapper() {
 		return oMapper;
 	}
-	
+
 	public GraphObjectMapper typeKey(String typeKey) {
 		vMapper.typeKey = typeKey;
 		return this;

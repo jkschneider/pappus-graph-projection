@@ -1,20 +1,23 @@
-Graph Object Mapper
-===================
+Pappus Graph-Object Projection Framework
+----------------------------------------
 
-Graph Object Mapper projects any Java object model onto a Tinkerpop compatible graph!
+![Simple Model](https://github.com/jkschneider/pappus-graph-projection/wiki/img/projection.jpg)
+
+Pappus projects any Java object model onto a Tinkerpop compatible graph!
 
 Features
 --------
 
 * Automatically projects Java object models to graphs without requiring any annotations.
-* Provides a `model` Gremlin step that locates model objects matching the specified type whose subgraphs contain vertices matching by the preceding step.
+* Provides a `model` Gremlin step that locates model objects matching the specified type whose subgraphs contain vertices matched by the preceding step.
 * Preserves the order of `Collection`-based fields.
 * Automatically deduplicates isomorphic subgraphs.
+* Supports time slicing of model objects to maintain history
 
 Getting Started
 ---------------
 
-Read the [documentation](https://github.com/jkschneider/graph-object-mapper/wiki).
+Read the [documentation](https://github.com/jkschneider/pappus-graph-projection/wiki).
 
 Building from source
 --------------------

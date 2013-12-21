@@ -1,4 +1,5 @@
-package com.jschneider.gom
+package com.jschneider.pappus
+
 import static org.junit.Assert.*
 
 import org.junit.BeforeClass
@@ -9,7 +10,6 @@ import com.tinkerpop.blueprints.Graph
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin
-import com.tinkerpop.pipes.Pipe
 
 
 class TestGremlinDomainSteps extends AbstractBenchmark {

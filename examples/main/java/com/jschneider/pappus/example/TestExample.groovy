@@ -1,30 +1,37 @@
-package com.jschneider.gom.example;
+package com.jschneider.pappus.example;
 
 import static org.junit.Assert.*
 
+import org.joda.time.LocalDate
+import org.junit.BeforeClass
 import org.junit.Test
 
-import com.jschneider.gom.GraphObjectMapper
-import com.jschneider.gom.GremlinModelSteps
+import com.fasterxml.jackson.datatype.joda.JodaModule
+import com.jschneider.pappus.GraphObjectMapper
+import com.jschneider.pappus.GremlinModelSteps
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin
 
 class TestExample {
-	@Test
-	public void simpleGraph() {
+	@BeforeClass
+	static void before() {
 		Gremlin.load()
 		GremlinModelSteps.load();
-
+	}
+	
+	@Test
+	void simpleGraph() {
 		def address = new Address(address1: '123 main st')
-		def jon = new Person(name: 'jon', age: 30, address: address)
+		def jon = new Person(name: 'jon', birthDate: new LocalDate(1983, 12, 5), address: address)
 		def escape = new Car(make: 'ford', model: 'escape', year: 2011)
 		jon.cars.add(escape)
 		
 		def g = new TinkerGraph()
 		def mapper = new GraphObjectMapper(g)
-		mapper.toGraph(jon)
+		mapper.getObjectMapper().registerModule(new JodaModule())
 		
+		mapper.toGraph(jon)
 		
 		Vertex personV
 		
@@ -43,4 +50,20 @@ class TestExample {
 		Car car = mapper.fromGraph(carV, Car.class)
 		assert car.make == 'ford'
 	}
+	
+	@Test
+	void jacksonModules() {
+		def g = new TinkerGraph()
+		def mapper = new GraphObjectMapper(g)
+		
+		// augments Pappus to deal with Joda LocalDates 
+		mapper.getObjectMapper().registerModule(new JodaModule())
+		
+		def birthDate = new LocalDate(1983, 12, 5)
+		def jon = new Person(name: 'jon', birthDate: new LocalDate(1983,12,5))
+		
+		Vertex personV = mapper.toGraph(jon)
+		def jonUnmapped = mapper.fromGraph(personV, Person.class)
+		assert jonUnmapped.birthDate == birthDate
+	} 
 }
