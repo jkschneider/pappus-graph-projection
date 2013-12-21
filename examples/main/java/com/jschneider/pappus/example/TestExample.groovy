@@ -66,4 +66,41 @@ class TestExample {
 		def jonUnmapped = mapper.fromGraph(personV, Person.class)
 		assert jonUnmapped.birthDate == birthDate
 	} 
+	
+	@Test
+	void hashEquals() {
+		def g = new TinkerGraph()
+		def mapper = new GraphObjectMapper(g)
+		
+		def jon = new Person(name: 'jon')
+		def bob = new Person(name: 'bob')
+		
+		def ford = new Car(make: 'ford')
+		jon.cars.add(ford)
+		bob.cars.add(ford)
+		
+		mapper.toGraph(jon)
+		mapper.toGraph(bob)
+		
+		assert g.vertices.count { 1 } == 3
+	}
+	
+	@Test
+	void hashNotEquals() {
+		def g = new TinkerGraph()
+		def mapper = new GraphObjectMapper(g)
+		
+		def jon = new Person(name: 'jon')
+		def bob = new Person(name: 'bob')
+		
+		def ford1 = new Car(make: 'ford', garagingLocation: new Address(city: 'columbia'))
+		def ford2 = new Car(make: 'ford', garagingLocation: new Address(city: 'st. louis'))
+		jon.cars.add(ford1)
+		bob.cars.add(ford2)
+		
+		mapper.toGraph(jon)
+		mapper.toGraph(bob)
+		
+		assert g.vertices.count { 1 } == 6
+	}
 }

@@ -44,7 +44,7 @@ public class GraphObjectMapper {
 		return this;
 	}
 	
-	public GraphObjectMapper hashLabel(String hashKey) {
+	public GraphObjectMapper hashKey(String hashKey) {
 		vMapper.hashKey = hashKey;
 		return this;
 	}

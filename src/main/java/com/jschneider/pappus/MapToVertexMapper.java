@@ -60,14 +60,14 @@ public class MapToVertexMapper {
 		Object id = hashToVertexId.getIfPresent(hash);
 		if(id != null)
 			return g.getVertex(id);
-		Iterator<Vertex> vIter = g.query().has("hashLabel", map.get("hashLabel")).vertices().iterator();
+		Iterator<Vertex> vIter = g.query().has(hashKey, map.get(hashKey)).vertices().iterator();
 		if(vIter.hasNext()) {
 			v = vIter.next();
 			hashToVertexId.put(hash, v.getId());
 			return v;
 		}
 		v = g.addVertex(null);
-		v.setProperty("typeLabel", c.getName());
+		v.setProperty(typeKey, c.getName());
 		
 		for(Entry<Object, Object> e : ((Map<Object, Object>) map).entrySet()) {
 			if(Map.class.isAssignableFrom(e.getValue().getClass())) {
@@ -84,7 +84,7 @@ public class MapToVertexMapper {
 					for(Object e3 : e2) {
 						Vertex v2 = toGraph((Map<Object, Object>) e3, getChildType(e.getKey().toString(), c));
 						Edge edge = v.addEdge(nameTools.depluralize(e.getKey().toString()), v2);
-						edge.setProperty("indexLabel", i++);
+						edge.setProperty(indexKey, i++);
 					}
 				}
 				else
@@ -108,7 +108,7 @@ public class MapToVertexMapper {
 		public int compare(Edge edge1, Edge edge2) {
 			if(edge1.getLabel().equals(edge2.getLabel())) {
 				// descending order by indexLabel
-				return (int) edge2.getProperty("indexLabel") - (int) edge1.getProperty("indexLabel");
+				return (int) edge2.getProperty(indexKey) - (int) edge1.getProperty(indexKey);
 			}
 			return edge1.getLabel().compareTo(edge2.getLabel());
 		}
@@ -116,7 +116,7 @@ public class MapToVertexMapper {
 	
 	protected void fromGraph(Vertex v, Map<Object, Object> map) {
 		for(String key : v.getPropertyKeys())
-			if(!"hashLabel".equals(key) && !"typeLabel".equals(key)) map.put(key, v.getProperty(key));
+			if(!hashKey.equals(key) && !typeKey.equals(key)) map.put(key, v.getProperty(key));
 
 		PriorityQueue<Edge> edgeQueue = new PriorityQueue<Edge>(10, edgeSorter);
 		for(Iterator<Edge> edgeIter = v.query().direction(Direction.OUT).edges().iterator(); edgeIter.hasNext();)
@@ -127,9 +127,9 @@ public class MapToVertexMapper {
 		
 		Edge e;
 		while((e = edgeQueue.poll()) != null) {
-			if(e.getProperty("indexLabel") != null) {
+			if(e.getProperty(indexKey) != null) {
 				if(!e.getLabel().equals(collectionLabel)) {
-					collection = new ArrayList<Map<Object, Object>>((int) e.getProperty("indexLabel"));
+					collection = new ArrayList<Map<Object, Object>>((int) e.getProperty(indexKey));
 					map.put(nameTools.pluralize(e.getLabel()), collection);
 				}
 				

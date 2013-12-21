@@ -66,7 +66,7 @@ class TestGremlinDomainSteps extends AbstractBenchmark {
 	
 	@Test
 	void domainWithMapReduce() {
-		assert g.V('name', 'c').domain(A.class)
+		assert g.V('name', 'c').model(A.class)
 			.groupBy{it['_id']}{it}{ it.max{ it['_timestamp'] } }
 			.cap()
 			.next() == [123:a2]

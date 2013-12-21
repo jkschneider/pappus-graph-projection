@@ -102,7 +102,7 @@ class TestMapToVertexMapper extends AbstractBenchmark {
 		Vertex b = g.addVertex(null)
 		b.name = 'b1'
 		Edge e = a.addEdge('b', b)
-		e['_domain'] = 'undefined'
+		e['_type'] = 'undefined'
 		assert mapper.fromGraph(a) == [b: [name: 'b1']]
 	}
 	
@@ -122,14 +122,14 @@ class TestMapToVertexMapper extends AbstractBenchmark {
 		b2.name = 'b2'
 		Edge eb1 = a.addEdge("object", b1)
 		Edge eb2 = a.addEdge("object", b2)
-		eb1['_collectionIndex'] = 0
-		eb1['_domain'] = 'undefined'
-		eb2['_collectionIndex'] = 1
-		eb2['_domain'] = 'undefined'
+		eb1['_index'] = 0
+		eb1['_type'] = 'undefined'
+		eb2['_index'] = 1
+		eb2['_type'] = 'undefined'
 		assert mapper.fromGraph(a) == [objects: [[name: 'b1'], [name: 'b2']]]
 		
 		// preserves order
-		eb1['_collectionIndex'] = 2
+		eb1['_index'] = 2
 		assert mapper.fromGraph(a) == [objects: [[name: 'b2'], [name: 'b1']]]
 	}
 	
