@@ -33,4 +33,19 @@ public class GraphObjectMapper {
 	public ObjectMapper getObjectMapper() {
 		return oMapper;
 	}
+	
+	public GraphObjectMapper typeKey(String typeKey) {
+		vMapper.typeKey = typeKey;
+		return this;
+	}
+
+	public GraphObjectMapper indexKey(String indexKey) {
+		vMapper.indexKey = indexKey;
+		return this;
+	}
+	
+	public GraphObjectMapper hashLabel(String hashKey) {
+		vMapper.hashKey = hashKey;
+		return this;
+	}
 }
