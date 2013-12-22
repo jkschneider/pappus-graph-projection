@@ -1,4 +1,4 @@
-package com.jschneider.pappus;
+package com.github.jkschneider.pappus;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;

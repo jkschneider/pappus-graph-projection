@@ -1,4 +1,4 @@
-package com.jschneider.pappus.example;
+package com.github.jkschneider.pappus.example;
 
 import org.joda.time.LocalDate
 

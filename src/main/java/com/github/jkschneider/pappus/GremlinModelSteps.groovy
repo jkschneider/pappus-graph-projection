@@ -1,4 +1,4 @@
-package com.jschneider.pappus
+package com.github.jkschneider.pappus
 
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.gremlin.groovy.Gremlin

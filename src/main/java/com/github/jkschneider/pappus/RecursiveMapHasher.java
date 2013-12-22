@@ -1,4 +1,4 @@
-package com.jschneider.pappus;
+package com.github.jkschneider.pappus;
 
 import java.util.Collection;
 import java.util.Map;

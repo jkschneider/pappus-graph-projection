@@ -1,4 +1,4 @@
-package com.jschneider.pappus.example;
+package com.github.jkschneider.pappus.example;
 
 import static org.junit.Assert.*
 
@@ -7,8 +7,8 @@ import org.junit.BeforeClass
 import org.junit.Test
 
 import com.fasterxml.jackson.datatype.joda.JodaModule
-import com.jschneider.pappus.GraphObjectMapper
-import com.jschneider.pappus.GremlinModelSteps
+import com.github.jkschneider.pappus.GraphObjectMapper
+import com.github.jkschneider.pappus.GremlinModelSteps
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin
