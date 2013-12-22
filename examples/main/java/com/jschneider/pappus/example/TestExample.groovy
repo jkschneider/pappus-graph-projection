@@ -17,7 +17,7 @@ class TestExample {
 	@BeforeClass
 	static void before() {
 		Gremlin.load()
-		GremlinModelSteps.load();
+		GremlinModelSteps.load()
 	}
 	
 	@Test
@@ -44,7 +44,6 @@ class TestExample {
 		Person person = mapper.fromGraph(personV, Person.class)
 		assert person.name == 'jon'
 		assert person.cars[0].make == 'ford'
-		
 		
 		def carV = g.V('model', 'escape').model(Car.class).iterator().next()
 		Car car = mapper.fromGraph(carV, Car.class)
@@ -102,5 +101,33 @@ class TestExample {
 		mapper.toGraph(bob)
 		
 		assert g.vertices.count { 1 } == 6
+	}
+	
+	@Test
+	void testHistory() {
+		def g = new TinkerGraph()
+		def mapper = new GraphObjectMapper(g)
+		
+		def jon = new Person(name: 'jon', version: 1)
+		def bob = new Person(name: 'bob', version: 1)
+		
+		def ford = new Car(make: 'ford')
+		jon.cars.add(ford)
+		bob.cars.add(ford)
+		
+		mapper.toGraph(jon)
+		mapper.toGraph(bob)
+		
+		def dodge = new Car(make: 'dodge')
+		jon.cars.add(dodge)
+		jon.version = 2
+		
+		mapper.toGraph(jon)
+		assert g.vertices.count { 1 } == 5
+
+		def ownersMap = g.V('make', 'ford').model(Person.class)
+			.groupBy{it['name']}{it}{ it.max{ it['version'] } }.cap.next()
+		def persons = mapper.fromGraph(ownersMap, Person.class)
+		assert persons.size == 2 && persons.collect { it.name }.sort() == ['bob', 'jon']
 	}
 }

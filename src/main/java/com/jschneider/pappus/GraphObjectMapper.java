@@ -1,6 +1,9 @@
 package com.jschneider.pappus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -28,6 +31,21 @@ public class GraphObjectMapper {
 			return null;
 		Map<Object, Object> m = vMapper.fromGraph(v);
 		return oMapper.convertValue(m, clazz);
+	}
+	
+	public <E> List<E> fromGraph(Iterable<Vertex> vIterable, Class<E> clazz) {
+		return fromGraph(vIterable.iterator(), clazz);
+	}
+	
+	public <E> List<E> fromGraph(Iterator<Vertex> vIterator, Class<E> clazz) {
+		List<E> all = new ArrayList<>();
+		for(Iterator<Vertex> vIter = vIterator; vIter.hasNext();)
+			all.add(fromGraph(vIter.next(), clazz));
+		return all;
+	}
+	
+	public <E> List<E> fromGraph(Map<?, Vertex> mapWithVertexValues, Class<E> clazz) {
+		return fromGraph(mapWithVertexValues.values().iterator(), clazz);
 	}
 	
 	public ObjectMapper getObjectMapper() {

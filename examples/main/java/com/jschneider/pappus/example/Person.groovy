@@ -7,4 +7,5 @@ public class Person {
 	Address address
 	LocalDate birthDate
 	List<Car> cars = []
+	Integer version
 }
