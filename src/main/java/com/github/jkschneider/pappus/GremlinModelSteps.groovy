@@ -25,5 +25,19 @@ class GremlinModelSteps {
 				)
 				.fairMerge
 		})
+		
+		Gremlin.defineStep('cascadeDelete', [Vertex,Pipe], {
+			_().as('_deleteLoop')
+				.copySplit(
+					_().out,
+					_().sideEffect { v ->
+						if(!v.in.hasNext())
+							v.remove()
+					}
+					.filter { false }
+				)
+				.fairMerge
+				.loop('_deleteLoop') { true }
+		})
 	}
 }

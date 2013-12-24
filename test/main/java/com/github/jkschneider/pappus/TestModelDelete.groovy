@@ -22,41 +22,13 @@ class TestModelDelete {
 
 		def ford = new Car(make: 'ford')
 		def jon = new Person(name: 'jon', cars: [ ford, new Car('make' : 'dodge') ])
-		def bob = new Person(name: 'bob', cars: [ ford ])
+		def bob = new Person(name: 'bob', cars: [ ford, new Car('make' : 'chevy') ])
 		
 		def jonV = mapper.toGraph(jon)
 		def bobV = mapper.toGraph(bob)
 		
-		assert g.vertices.size() == 4
-
-		def removable
-		g.V('name', 'jon')
-			.as('x')
-			.sideEffect { v ->
-				if(!v.in.hasNext()) {
-					println v.propertyKeys.collect { k -> "$k -> ${v.getProperty(k)}" }.join(", ")
-					removable = v
-				}
-			}
-			.out
-			.sideEffect {
-				if(removable) {
-					removable.remove()
-					removable = null
-				}
-			}
-			.loop('x') { true }
-			.sideEffect {
-				// FIXME this last step is not being called...
-				if(removable)
-					removable.remove()
-			}
-			.iterate()
-
-		println "\nEnding vertices:"
-		assert g.vertices.each { v ->
-			println v.propertyKeys.collect { k -> "$k -> ${v.getProperty(k)}" }.join(", ")
-		}		
-		assert g.vertices.size() == 2
+		assert g.vertices.size() == 5 // bob, jon, and their three cars
+		jonV.cascadeDelete().iterate()
+		assert g.vertices.size() == 3 // bob and his two cars
 	}
 }
