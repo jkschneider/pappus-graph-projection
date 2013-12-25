@@ -11,7 +11,7 @@ Features
 * Automatically projects Java object models to graphs without requiring any annotations.
 * Provides a `model` Gremlin step that locates model objects matching the specified type whose subgraphs contain vertices matched by the preceding step.
 * Preserves the order of `Collection`-based fields.
-* Automatically deduplicates of isomorphic subgraphs.
+* Automatically deduplicates isomorphic subgraphs.
 * Version or time slices model objects to maintain history.
 * Cascading delete of subgraphs related to a specific model element.
 
