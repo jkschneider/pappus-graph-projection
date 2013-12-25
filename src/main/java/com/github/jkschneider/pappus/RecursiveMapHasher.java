@@ -16,12 +16,20 @@ public class RecursiveMapHasher {
 		Hasher hasher = md5.newHasher();
 		
 		for(Entry<Object,Object> e : map.entrySet()) {
-			if(Map.class.isAssignableFrom(e.getValue().getClass()))
-				hasher.putLong(hash((Map<Object,Object>) e.getValue()));
-			else if(Collection.class.isAssignableFrom(e.getValue().getClass()))
-				putHash((Collection<Object>) e.getValue(), hasher);
-			else if(Number.class.isAssignableFrom(e.getClass()))
-				hasher.putLong((Long) e.getValue());
+			Object val = e.getValue();
+			
+			if(Map.class.isAssignableFrom(val.getClass()))
+				hasher.putLong(hash((Map<Object,Object>) val));
+			else if(Collection.class.isAssignableFrom(val.getClass()))
+				putHash((Collection<Object>) val, hasher);
+			else if(Integer.class.isAssignableFrom(e.getClass()))
+				hasher.putInt((Integer) val);
+			else if(Long.class.isAssignableFrom(e.getClass()))
+				hasher.putLong((Long) val);
+			else if(Double.class.isAssignableFrom(e.getClass()))
+				hasher.putDouble((Double) val);
+			else if(Float.class.isAssignableFrom(e.getClass()))
+				hasher.putFloat((Float) val);
 			else
 				hasher.putUnencodedChars(e.getValue().toString());
 		}

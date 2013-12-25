@@ -1,4 +1,4 @@
-package com.github.jkschneider.pappus.example;
+package com.github.jkschneider.pappus;
 
 import static org.junit.Assert.*
 
@@ -9,11 +9,14 @@ import org.junit.Test
 import com.fasterxml.jackson.datatype.joda.JodaModule
 import com.github.jkschneider.pappus.GraphObjectMapper
 import com.github.jkschneider.pappus.GremlinModelSteps
+import com.github.jkschneider.pappus.example.Address;
+import com.github.jkschneider.pappus.example.Car;
+import com.github.jkschneider.pappus.example.Person;
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin
 
-class TestExample {
+class TestMapperAndModelStep {
 	@BeforeClass
 	static void before() {
 		Gremlin.load()
