@@ -14,5 +14,9 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/blueprints-core-2.5.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/gremlin-groovy-2.5.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/gremlin-java-2.5.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/pipes-2.5.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
