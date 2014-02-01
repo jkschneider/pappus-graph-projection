@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.jkschneider</groupId>
 	<artifactId>pappus-graph-projection</artifactId>
-	<version>0.1.2</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<scm>
 		<connection>scm:git:git@github.com:jkschneider/pappus-graph-projection.git</connection>
 		<developerConnection>scm:git:git@github.com:jkschneider/pappus-graph-projection.git</developerConnection>
