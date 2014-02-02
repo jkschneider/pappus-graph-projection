@@ -1,0 +1,39 @@
+These instructions were pieced together from a number of locations, but most of it is documented here:
+https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-7a.DeploySnapshotsandStageReleaseswithMaven
+
+Prerequisites:
+
+0.1.  Always run these commands from git bash rather than the regular windows command line, since git bash can be 
+configured to run ssh-agent on startup (https://help.github.com/articles/working-with-ssh-key-passphrases), 
+and ssh-agent will be needed in later steps.
+
+0.2.  Prepare github ssh keys according to these instructions: https://help.github.com/articles/generating-ssh-keys
+
+0.3.  Make sure the public and private gpg keys are loaded into the keyring:
+
+gpg --import public.key
+gpg --allow-secret-key-import --import private.key
+
+0.4.  Make sure the github ssh private key (id_rsa) is loaded into the ssh keyring (http://stackoverflow.com/questions/4520578/sharing-ssh-keys).
+
+Instructions for how to perform a release:
+
+1.  mvn clean deploy
+
+This uploads a snapshot version to oss.sonatype.org.  This is a prerequisite to uploading staging versions, as the 
+release:prepare maven task verifies the contents of pom.xml locally with the snapshot version on OSSRH.
+
+2.  mvn release:clean
+
+Deletes release.properties and pom.xml.releaseBackup, if they exist.
+
+3.  mvn release:prepare
+
+Automatically alters pom.xml with the staging version, pushes, releases, alters pom.xml with the next snapshot version, pushes again.
+In order for this to work, maven has to be able to push to the github repository, meaning we have some SSH work to do...
+
+4.  mvn release:perform
+
+Builds the prepared release once more and uploads it to the staging repository.
+
+5.  Login to OSS sonatype and "close" the repository.  Once it is closed "release" the repository.  Within 2 hours, central sync will pick up the release and put it in Maven central.

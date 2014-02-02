@@ -15,11 +15,20 @@ Features
 * Version or time slices model objects to maintain history.
 * Cascading delete of subgraphs related to a specific model element.
 
-
 Getting Started
 ---------------
 
 Read the [documentation](https://github.com/jkschneider/pappus-graph-projection/wiki).
+
+To use, add the following Maven dependency:
+
+```xml
+<dependency>
+  <groupId>com.github.jkschneider</groupId>
+  <artifactId>pappus-graph-projection</artifactId>
+  <version>0.1.2</version>
+</dependency>
+```
 
 Building from source
 --------------------

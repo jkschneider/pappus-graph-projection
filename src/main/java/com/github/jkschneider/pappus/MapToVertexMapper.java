@@ -20,6 +20,7 @@ import com.google.common.cache.CacheBuilder;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
 
 public class MapToVertexMapper {
@@ -64,6 +65,7 @@ public class MapToVertexMapper {
 		if(vIter.hasNext()) {
 			v = vIter.next();
 			hashToVertexId.put(hash, v.getId());
+			commitIfNecessary();
 			return v;
 		}
 		v = g.addVertex(null);
@@ -94,9 +96,15 @@ public class MapToVertexMapper {
 				v.setProperty(e.getKey().toString(), e.getValue());
 		}
 		
+		commitIfNecessary();
 		return v;
 	}
 	
+	private void commitIfNecessary() {
+		if(TransactionalGraph.class.isAssignableFrom(g.getClass()))
+			((TransactionalGraph) g).commit();
+	}
+
 	public Map<Object, Object> fromGraph(Vertex v) {
 		Map<Object, Object> map = new HashMap<Object, Object>();
 		fromGraph(v, map);
@@ -145,5 +153,7 @@ public class MapToVertexMapper {
 				map.put(e.getLabel(), child);
 			}
 		}
+		
+		commitIfNecessary();
 	}
 }
