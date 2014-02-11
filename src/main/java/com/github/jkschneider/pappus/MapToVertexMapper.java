@@ -1,7 +1,5 @@
 package com.github.jkschneider.pappus;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,44 +22,30 @@ import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
 
 public class MapToVertexMapper {
-	String typeKey = "_type";
-	String indexKey = "_index";
-	String hashKey = "_hash";
+	String typeProperty = "_type";
+	String indexProperty = "_index";
+	String hashProperty = "_hash";
+	String keyProperty = "_key";
 	
 	Cache<Long, Object> hashToVertexId = CacheBuilder.newBuilder().maximumSize(8192).build();
 	
 	NameConverter nameTools = new DefaultNameConverter();
-	RecursiveMapHasher hasher = new RecursiveMapHasher();
+	RecursiveMapDecorator hasher = new RecursiveMapDecorator();
 	Graph g;
 	
 	public MapToVertexMapper(Graph g) {
 		this.g = g;
 	}
 
-	protected Class<?> getChildType(String field, Class<?> c) {
-		try {
-			Field f = c.getDeclaredField(field);
-			if(f.getType().isArray())
-				return f.getType().getComponentType();
-			else if(Collection.class.isAssignableFrom(f.getType())) {
-				ParameterizedType collectionType = (ParameterizedType) f.getGenericType();
-				return ((Class<?>) collectionType.getActualTypeArguments()[0]);
-			}
-			return f.getType();
-		} catch (NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	@SuppressWarnings("unchecked")
 	public Vertex toGraph(Map<Object, Object> map, Class<?> c) {
-		Long hash = hasher.hash(map);
+		Long hash = hasher.hash(map, c);
 		Vertex v;
 		
 		Object id = hashToVertexId.getIfPresent(hash);
 		if(id != null)
 			return g.getVertex(id);
-		Iterator<Vertex> vIter = g.query().has(hashKey, map.get(hashKey)).vertices().iterator();
+		Iterator<Vertex> vIter = g.query().has(hashProperty, map.get(hashProperty)).vertices().iterator();
 		if(vIter.hasNext()) {
 			v = vIter.next();
 			hashToVertexId.put(hash, v.getId());
@@ -69,31 +53,65 @@ public class MapToVertexMapper {
 			return v;
 		}
 		v = g.addVertex(null);
-		v.setProperty(typeKey, c.getName());
+		v.setProperty(typeProperty, c.getName());
 		
 		for(Entry<Object, Object> e : ((Map<Object, Object>) map).entrySet()) {
-			if(Map.class.isAssignableFrom(e.getValue().getClass())) {
-				Vertex v2 = toGraph((Map<Object, Object>) e.getValue(), getChildType(e.getKey().toString(), c));
-				v.addEdge(e.getKey().toString(), v2);
+			String fieldName = e.getKey().toString();
+
+			if(typeProperty.equals(fieldName)) {
+				v.setProperty(fieldName, ((Class<?>) e.getValue()).getName());
+			}
+			else if(Map.class.isAssignableFrom(e.getValue().getClass())) {
+				// this field is a complex type, which will be mapped to a subgraph
+				Map<Object, Object> e2 = (Map<Object, Object>) e.getValue();
+				Class<?> fieldType = (Class<?>) e2.get("_type");
+				
+				if(fieldType == null) {
+					// the field type itself is a map
+					if(e2.isEmpty())
+						continue;
+					Class<?> mapValueType = e2.values().iterator().next().getClass();
+					
+					if(Map.class.isAssignableFrom(mapValueType)) {
+						for(Entry<Object, Object> entry : e2.entrySet()) {
+							Vertex v2 = toGraph((Map<Object, Object>) entry.getValue(), mapValueType);
+							Edge edge = v.addEdge(nameTools.depluralize(fieldName), v2);
+							edge.setProperty(keyProperty, entry.getKey().toString());
+						}
+					}
+					else
+						v.setProperty(fieldName, e.getValue());
+				}
+				else {
+					// the field is a complex type
+					Vertex v2 = toGraph(e2, fieldType);
+					v.addEdge(fieldName, v2);
+				}
 			}
 			else if(Collection.class.isAssignableFrom(e.getValue().getClass())) {
+				// this field represents a collection of objects
 				Collection<Object> e2 = (Collection<Object>) e.getValue();
 				if(e2.isEmpty())
 					continue;
 				Class<?> collType = e2.iterator().next().getClass();
+				
 				if(Map.class.isAssignableFrom(collType)) {
+					// the collection contains complex types that will be mapped to individual subgraphs
 					int i = 0;
 					for(Object e3 : e2) {
-						Vertex v2 = toGraph((Map<Object, Object>) e3, getChildType(e.getKey().toString(), c));
-						Edge edge = v.addEdge(nameTools.depluralize(e.getKey().toString()), v2);
-						edge.setProperty(indexKey, i++);
+						Map<Object, Object> e4 = (Map<Object, Object>) e3;
+						Vertex v2 = toGraph(e4, (Class<?>) e4.get("_type"));
+						Edge edge = v.addEdge(nameTools.depluralize(fieldName), v2);
+						edge.setProperty(indexProperty, i++);
 					}
 				}
-				else
-					v.setProperty(e.getKey().toString(), e.getValue());
+				else {
+					// the collection contains primitive types... we will store the whole collection on a single property
+					v.setProperty(fieldName, e.getValue());
+				}
 			}
 			else
-				v.setProperty(e.getKey().toString(), e.getValue());
+				v.setProperty(fieldName, e.getValue());
 		}
 		
 		commitIfNecessary();
@@ -106,7 +124,7 @@ public class MapToVertexMapper {
 	}
 
 	public Map<Object, Object> fromGraph(Vertex v) {
-		Map<Object, Object> map = new HashMap<Object, Object>();
+		Map<Object, Object> map = new HashMap<>();
 		fromGraph(v, map);
 		return map;
 	}
@@ -115,8 +133,16 @@ public class MapToVertexMapper {
 		@Override
 		public int compare(Edge edge1, Edge edge2) {
 			if(edge1.getLabel().equals(edge2.getLabel())) {
-				// descending order by indexLabel
-				return (int) edge2.getProperty(indexKey) - (int) edge1.getProperty(indexKey);
+				
+				if(edge2.getProperty(indexProperty) != null) {
+					// descending order by indexProperty
+					return (int) edge2.getProperty(indexProperty) - (int) edge1.getProperty(indexProperty);
+				}
+				if(edge2.getProperty(keyProperty) != null) {
+					// descending order by keyProperty
+					String key2 = edge2.getProperty(keyProperty), key1 = edge1.getProperty(keyProperty);
+					return key2.compareTo(key1);
+				}
 			}
 			return edge1.getLabel().compareTo(edge2.getLabel());
 		}
@@ -124,31 +150,49 @@ public class MapToVertexMapper {
 	
 	protected void fromGraph(Vertex v, Map<Object, Object> map) {
 		for(String key : v.getPropertyKeys())
-			if(!hashKey.equals(key) && !typeKey.equals(key)) map.put(key, v.getProperty(key));
+			if(!hashProperty.equals(key) && !typeProperty.equals(key)) map.put(key, v.getProperty(key));
 
 		PriorityQueue<Edge> edgeQueue = new PriorityQueue<Edge>(10, edgeSorter);
 		for(Iterator<Edge> edgeIter = v.query().direction(Direction.OUT).edges().iterator(); edgeIter.hasNext();)
 			edgeQueue.add(edgeIter.next());
 
 		String collectionLabel = null;
+		String mapLabel = null;
 		List<Map<Object, Object>> collection = null;
+		Map<Object, Map<Object, Object>> mapField = null;
 		
 		Edge e;
 		while((e = edgeQueue.poll()) != null) {
-			if(e.getProperty(indexKey) != null) {
+			if(e.getProperty(indexProperty) != null) {
 				if(!e.getLabel().equals(collectionLabel)) {
-					collection = new ArrayList<Map<Object, Object>>((int) e.getProperty(indexKey));
+					// this edge represents the first element in a collection
+					collection = new ArrayList<>((int) e.getProperty(indexProperty));
+					
+					// TODO don't assume that the field name is going to need to be pluralized
 					map.put(nameTools.pluralize(e.getLabel()), collection);
 				}
 				
-				Map<Object, Object> child = new HashMap<Object, Object>();
+				Map<Object, Object> child = new HashMap<>();
 				fromGraph(e.getVertex(Direction.IN), child);
 				collection.add(0, child); // edges are sorted last index first
 				
 				collectionLabel = e.getLabel();
 			}
-			else {
+			else if(e.getProperty(keyProperty) != null) {
+				if(!e.getLabel().equals(mapLabel)) {
+					// this edge represents the first element in a map
+					mapField = new HashMap<>();
+					map.put(e.getLabel(), mapField);
+				}
+				
 				Map<Object, Object> child = new HashMap<Object, Object>();
+				fromGraph(e.getVertex(Direction.IN), child);
+				mapField.put(e.getProperty(keyProperty), child);
+				
+				mapLabel = e.getLabel();
+			}
+			else {
+				Map<Object, Object> child = new HashMap<>();
 				fromGraph(e.getVertex(Direction.IN), child);
 				map.put(e.getLabel(), child);
 			}

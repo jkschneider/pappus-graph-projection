@@ -6,21 +6,24 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 
-import com.carrotsearch.junitbenchmarks.AbstractBenchmark
+import com.tinkerpop.blueprints.Direction
 import com.tinkerpop.blueprints.Edge
 import com.tinkerpop.blueprints.Graph
 import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin
 
-class TestMapToVertexMapper extends AbstractBenchmark {
+class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 	class A {
 		B b
 		List<B> objects = []
+		List<B> objects2 = []
 		Long num
 		String name
 		List<String> strings = []
 		B[] objectArrs = []
+		Map<String, Integer> intMap = [:]
+		Map<String, B> bMap = [:]
 	}
 
 	class B {
@@ -89,6 +92,22 @@ class TestMapToVertexMapper extends AbstractBenchmark {
 	}
 	
 	@Test
+	void toGraphMapWithPrimitiveValues() {
+		Vertex v = mapper.toGraph([intMap: ['a': 1]], A.class)
+		assert v.intMap == ['a': 1]
+	}
+	
+	@Test
+	void toGraphMapWithObjectValues() {
+		Vertex v = mapper.toGraph([bMap: ['b1': [name: 'b']]], A.class)
+		def iter = v.outE('bMap').iterator()
+		assert iter.hasNext()
+		Edge e = iter.next()
+		assert e['_key'] == 'b1'
+		assert e.getVertex(Direction.IN)['name'] == 'b'
+	}
+	
+	@Test
 	void fromGraphPrimitives() {
 		Vertex a = g.addVertex(null)
 		a.name = 'a1'
@@ -104,6 +123,23 @@ class TestMapToVertexMapper extends AbstractBenchmark {
 		Edge e = a.addEdge('b', b)
 		e['_type'] = 'undefined'
 		assert mapper.fromGraph(a) == [b: [name: 'b1']]
+	}
+	
+	@Test
+	void fromGraphMap() {
+		Vertex a = g.addVertex(null)
+		
+		Vertex b1 = g.addVertex(null)
+		Vertex b2 = g.addVertex(null)
+		b1.name = 'b1'
+		b2.name = 'b2'
+		
+		Edge eb1 = a.addEdge("bMap", b1)
+		Edge eb2 = a.addEdge("bMap", b2)
+		eb1['_key'] = 'b1Key'
+		eb2['_key'] = 'b2Key'
+		
+		assert mapper.fromGraph(a) == [bMap : [b1Key: [name: 'b1'], b2Key: [name: 'b2']]]
 	}
 	
 	@Test
@@ -147,12 +183,5 @@ class TestMapToVertexMapper extends AbstractBenchmark {
 		Vertex a2 = mapper.toGraph([name:'a1', objects: [[name: 'b1'], [name: 'b2']]], A.class)
 		assert g.vertices.count { 1 } == 4
 		assert g.edges.count { 1 } == 4
-	}
-	
-	@Test
-	void classType() {
-		assert mapper.getChildType("b", A.class) == B.class
-		assert mapper.getChildType("objects", A.class) == B.class
-		assert mapper.getChildType("objectArrs", A.class) == B.class
 	}
 }

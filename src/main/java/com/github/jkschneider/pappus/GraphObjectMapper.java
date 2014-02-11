@@ -103,11 +103,11 @@ public class GraphObjectMapper {
 	/**
 	 * Sets the special property used to store type information on vertices.
 	 * 
-	 * @param typeKey
+	 * @param typeProperty
 	 * @return
 	 */
-	public GraphObjectMapper typeKey(String typeKey) {
-		vMapper.typeKey = typeKey;
+	public GraphObjectMapper typeKey(String typeProperty) {
+		vMapper.typeProperty = typeProperty;
 		return this;
 	}
 	
@@ -116,11 +116,23 @@ public class GraphObjectMapper {
 	 * on edges so that a Java object model unwrapped from the graph containing
 	 * lists or arrays have the order of these elements preserved.
 	 * 
-	 * @param indexKey
+	 * @param indexProperty
 	 * @return
 	 */
-	public GraphObjectMapper indexKey(String indexKey) {
-		vMapper.indexKey = indexKey;
+	public GraphObjectMapper indexProperty(String indexProperty) {
+		vMapper.indexProperty = indexProperty;
+		return this;
+	}
+	
+	/**
+	 * Sets the special property used to store Map key information
+	 * on edges. 
+	 *  
+	 * @param keyProperty
+	 * @return
+	 */
+	public GraphObjectMapper keyProperty(String keyProperty) {
+		vMapper.keyProperty = keyProperty;
 		return this;
 	}
 	
@@ -130,11 +142,11 @@ public class GraphObjectMapper {
 	 * being stored already has an equivalent subgraph. If so, a new edge is
 	 * drawn to the existing subgraph to preserve space.
 	 * 
-	 * @param hashKey
+	 * @param hashProperty
 	 * @return
 	 */
-	public GraphObjectMapper hashKey(String hashKey) {
-		vMapper.hashKey = hashKey;
+	public GraphObjectMapper hashKey(String hashProperty) {
+		vMapper.hashProperty = hashProperty;
 		return this;
 	}
 }
