@@ -13,7 +13,7 @@ import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin
 
-class TestMapToVertexMapper extends AbstractBenchmark {
+class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 	class A {
 		B b
 		List<B> objects = []
@@ -26,6 +26,10 @@ class TestMapToVertexMapper extends AbstractBenchmark {
 	class B {
 		String name
 		B b
+	}
+	
+	class C {
+		Map<String, Object> keyValues = new HashMap<String, Object>()
 	}
 	
 	Graph g
@@ -86,6 +90,12 @@ class TestMapToVertexMapper extends AbstractBenchmark {
 		def iter = v.out('object').iterator()
 		assert iter.hasNext() && iter.next().name == 'b1'
 		assert iter.hasNext() && iter.next().name == 'b2'
+	}
+	
+	@Test
+	void toGraphMap() {
+		Vertex v = mapper.toGraph([keyValues: new HashMap<String, Integer>() {{ put("a", 1) }} ], C.class)
+		assert v.keyValues == ["a":1]
 	}
 	
 	@Test
