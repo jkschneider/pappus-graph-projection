@@ -73,6 +73,7 @@ class TestRecursiveMapDecorator {
 	@Test
 	void mapValueTypesAreInferred() {
 		def m1 = [bMap : ['b1' : [nestedField : 'b']]]
+		
 		hasher.hash(m1, A.class)
 		assert m1.bMap['b1']['_type'] == B.class
 	}

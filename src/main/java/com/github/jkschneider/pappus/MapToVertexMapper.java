@@ -66,18 +66,24 @@ public class MapToVertexMapper {
 				Map<Object, Object> e2 = (Map<Object, Object>) e.getValue();
 				Class<?> fieldType = (Class<?>) e2.get("_type");
 				
-				if(Map.class.isAssignableFrom(fieldType)) {
+				if(fieldType == null) {
 					// the field type itself is a map
-//					if(mapValueType is not a primitive) {
-//						for(Entry<Object, Object> entry : e2.entrySet()) {
-//							Vertex v2 = toGraph((Map<Object, Object>) entry.getValue(), mapValueType);
-//						}
-//					}
-//					else {
+					if(e2.isEmpty())
+						continue;
+					Class<?> mapValueType = e2.values().iterator().next().getClass();
+					
+					if(Map.class.isAssignableFrom(mapValueType)) {
+						for(Entry<Object, Object> entry : e2.entrySet()) {
+							Vertex v2 = toGraph((Map<Object, Object>) entry.getValue(), mapValueType);
+							Edge edge = v.addEdge(nameTools.depluralize(fieldName), v2);
+							edge.setProperty(keyProperty, entry.getKey().toString());
+						}
+					}
+					else
 						v.setProperty(fieldName, e.getValue());
-//					}
 				}
 				else {
+					// the field is a complex type
 					Vertex v2 = toGraph(e2, fieldType);
 					v.addEdge(fieldName, v2);
 				}

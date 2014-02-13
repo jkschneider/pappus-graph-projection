@@ -6,7 +6,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 
-import com.carrotsearch.junitbenchmarks.AbstractBenchmark
+import com.tinkerpop.blueprints.Direction
 import com.tinkerpop.blueprints.Edge
 import com.tinkerpop.blueprints.Graph
 import com.tinkerpop.blueprints.Vertex
@@ -21,15 +21,13 @@ class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 		String name
 		List<String> strings = []
 		B[] objectArrs = []
+		Map<String, Integer> intMap = [:]
+		Map<String, B> bMap = [:]
 	}
 
 	class B {
 		String name
 		B b
-	}
-	
-	class C {
-		Map<String, Object> keyValues = new HashMap<String, Object>()
 	}
 	
 	Graph g
@@ -93,9 +91,19 @@ class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 	}
 	
 	@Test
-	void toGraphMap() {
-		Vertex v = mapper.toGraph([keyValues: ["a", 1]], C.class)
-		assert v.keyValues == ["a": 1]
+	void toGraphMapWithPrimitiveValues() {
+		Vertex v = mapper.toGraph([intMap: ['a': 1]], A.class)
+		assert v.intMap == ['a': 1]
+	}
+	
+	@Test
+	void toGraphMapWithObjectValues() {
+		Vertex v = mapper.toGraph([bMap: ['b1': [name: 'b']]], A.class)
+		def iter = v.outE('bMap').iterator()
+		assert iter.hasNext()
+		Edge e = iter.next()
+		assert e['_key'] == 'b1'
+		assert e.getVertex(Direction.IN)['name'] == 'b'
 	}
 	
 	@Test
