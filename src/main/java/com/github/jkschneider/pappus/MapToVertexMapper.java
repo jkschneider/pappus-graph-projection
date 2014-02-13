@@ -1,7 +1,5 @@
 package com.github.jkschneider.pappus;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -39,21 +37,6 @@ public class MapToVertexMapper {
 		this.g = g;
 	}
 
-	protected Class<?> getChildType(String field, Class<?> c) {
-		try {
-			Field f = c.getDeclaredField(field);
-			if(f.getType().isArray())
-				return f.getType().getComponentType();
-			else if(Collection.class.isAssignableFrom(f.getType())) {
-				ParameterizedType collectionType = (ParameterizedType) f.getGenericType();
-				return (Class<?>) collectionType.getActualTypeArguments()[0];
-			}
-			return f.getType();
-		} catch (NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	@SuppressWarnings("unchecked")
 	public Vertex toGraph(Map<Object, Object> map, Class<?> c) {
 		Long hash = hasher.hash(map, c);
@@ -74,30 +57,25 @@ public class MapToVertexMapper {
 		
 		for(Entry<Object, Object> e : ((Map<Object, Object>) map).entrySet()) {
 			String fieldName = e.getKey().toString();
-			
-			if(Map.class.isAssignableFrom(e.getValue().getClass())) {
+
+			if(typeProperty.equals(fieldName)) {
+				v.setProperty(fieldName, ((Class<?>) e.getValue()).getName());
+			}
+			else if(Map.class.isAssignableFrom(e.getValue().getClass())) {
 				// this field is a complex type, which will be mapped to a subgraph
-				Class<?> fieldType = getChildType(fieldName, c);
 				Map<Object, Object> e2 = (Map<Object, Object>) e.getValue();
+				Class<?> fieldType = (Class<?>) e2.get("_type");
 				
 				if(Map.class.isAssignableFrom(fieldType)) {
 					// the field type itself is a map
-					try {
-						Field f = c.getDeclaredField(fieldName);
-						ParameterizedType mapGenericTypes = (ParameterizedType) f.getGenericType();
-						Class<?> mapValueType = (Class<?>) mapGenericTypes.getActualTypeArguments()[1];
-						
-//						if(mapValueType is not a primitive) {
-//							for(Entry<Object, Object> entry : e2.entrySet()) {
-//								Vertex v2 = toGraph((Map<Object, Object>) entry.getValue(), mapValueType);
-//							}
+//					if(mapValueType is not a primitive) {
+//						for(Entry<Object, Object> entry : e2.entrySet()) {
+//							Vertex v2 = toGraph((Map<Object, Object>) entry.getValue(), mapValueType);
 //						}
-//						else {
-							v.setProperty(fieldName, e.getValue());
-//						}
-					} catch (NoSuchFieldException | SecurityException ex) {
-						throw new RuntimeException(ex);
-					}
+//					}
+//					else {
+						v.setProperty(fieldName, e.getValue());
+//					}
 				}
 				else {
 					Vertex v2 = toGraph(e2, fieldType);
@@ -115,7 +93,8 @@ public class MapToVertexMapper {
 					// the collection contains complex types that will be mapped to individual subgraphs
 					int i = 0;
 					for(Object e3 : e2) {
-						Vertex v2 = toGraph((Map<Object, Object>) e3, getChildType(fieldName, c));
+						Map<Object, Object> e4 = (Map<Object, Object>) e3;
+						Vertex v2 = toGraph(e4, (Class<?>) e4.get("_type"));
 						Edge edge = v.addEdge(nameTools.depluralize(fieldName), v2);
 						edge.setProperty(indexProperty, i++);
 					}

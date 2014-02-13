@@ -94,8 +94,8 @@ class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 	
 	@Test
 	void toGraphMap() {
-		Vertex v = mapper.toGraph([keyValues: new HashMap<String, Integer>() {{ put("a", 1) }} ], C.class)
-		assert v.keyValues == ["a":1]
+		Vertex v = mapper.toGraph([keyValues: ["a", 1]], C.class)
+		assert v.keyValues == ["a": 1]
 	}
 	
 	@Test
@@ -157,12 +157,5 @@ class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 		Vertex a2 = mapper.toGraph([name:'a1', objects: [[name: 'b1'], [name: 'b2']]], A.class)
 		assert g.vertices.count { 1 } == 4
 		assert g.edges.count { 1 } == 4
-	}
-	
-	@Test
-	void classType() {
-		assert mapper.getChildType("b", A.class) == B.class
-		assert mapper.getChildType("objects", A.class) == B.class
-		assert mapper.getChildType("objectArrs", A.class) == B.class
 	}
 }

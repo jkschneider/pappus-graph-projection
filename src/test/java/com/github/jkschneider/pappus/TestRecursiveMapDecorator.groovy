@@ -11,6 +11,8 @@ class TestRecursiveMapDecorator {
 		Map<String, Integer> map
 		Map<String, B> bMap
 		B nested
+		List<B> bList
+		B[] bArr
 	}
 	
 	class B {
@@ -71,6 +73,14 @@ class TestRecursiveMapDecorator {
 	@Test
 	void mapValueTypesAreInferred() {
 		def m1 = [bMap : ['b1' : [nestedField : 'b']]]
+		hasher.hash(m1, A.class)
 		assert m1.bMap['b1']['_type'] == B.class
+	}
+	
+	@Test
+	void classType() {
+		assert hasher.getChildType("nested", A.class) == B.class
+		assert hasher.getChildType("bList", A.class) == B.class
+		assert hasher.getChildType("bArr", A.class) == B.class
 	}
 }
