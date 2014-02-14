@@ -26,7 +26,7 @@ To use, add the following Maven dependency:
 <dependency>
   <groupId>com.github.jkschneider</groupId>
   <artifactId>pappus-graph-projection</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
