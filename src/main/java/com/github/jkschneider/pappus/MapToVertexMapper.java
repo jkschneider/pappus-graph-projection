@@ -124,7 +124,7 @@ public class MapToVertexMapper {
 	}
 
 	public Map<Object, Object> fromGraph(Vertex v) {
-		Map<Object, Object> map = new HashMap<Object, Object>();
+		Map<Object, Object> map = new HashMap<>();
 		fromGraph(v, map);
 		return map;
 	}
@@ -133,8 +133,16 @@ public class MapToVertexMapper {
 		@Override
 		public int compare(Edge edge1, Edge edge2) {
 			if(edge1.getLabel().equals(edge2.getLabel())) {
-				// descending order by indexLabel
-				return (int) edge2.getProperty(indexProperty) - (int) edge1.getProperty(indexProperty);
+				
+				if(edge2.getProperty(indexProperty) != null) {
+					// descending order by indexProperty
+					return (int) edge2.getProperty(indexProperty) - (int) edge1.getProperty(indexProperty);
+				}
+				if(edge2.getProperty(keyProperty) != null) {
+					// descending order by keyProperty
+					String key2 = edge2.getProperty(keyProperty), key1 = edge1.getProperty(keyProperty);
+					return key2.compareTo(key1);
+				}
 			}
 			return edge1.getLabel().compareTo(edge2.getLabel());
 		}
@@ -149,24 +157,42 @@ public class MapToVertexMapper {
 			edgeQueue.add(edgeIter.next());
 
 		String collectionLabel = null;
+		String mapLabel = null;
 		List<Map<Object, Object>> collection = null;
+		Map<Object, Map<Object, Object>> mapField = null;
 		
 		Edge e;
 		while((e = edgeQueue.poll()) != null) {
 			if(e.getProperty(indexProperty) != null) {
 				if(!e.getLabel().equals(collectionLabel)) {
-					collection = new ArrayList<Map<Object, Object>>((int) e.getProperty(indexProperty));
+					// this edge represents the first element in a collection
+					collection = new ArrayList<>((int) e.getProperty(indexProperty));
+					
+					// TODO don't assume that the field name is going to need to be pluralized
 					map.put(nameTools.pluralize(e.getLabel()), collection);
 				}
 				
-				Map<Object, Object> child = new HashMap<Object, Object>();
+				Map<Object, Object> child = new HashMap<>();
 				fromGraph(e.getVertex(Direction.IN), child);
 				collection.add(0, child); // edges are sorted last index first
 				
 				collectionLabel = e.getLabel();
 			}
-			else {
+			else if(e.getProperty(keyProperty) != null) {
+				if(!e.getLabel().equals(mapLabel)) {
+					// this edge represents the first element in a map
+					mapField = new HashMap<>();
+					map.put(e.getLabel(), mapField);
+				}
+				
 				Map<Object, Object> child = new HashMap<Object, Object>();
+				fromGraph(e.getVertex(Direction.IN), child);
+				mapField.put(e.getProperty(keyProperty), child);
+				
+				mapLabel = e.getLabel();
+			}
+			else {
+				Map<Object, Object> child = new HashMap<>();
 				fromGraph(e.getVertex(Direction.IN), child);
 				map.put(e.getLabel(), child);
 			}

@@ -17,6 +17,7 @@ class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 	class A {
 		B b
 		List<B> objects = []
+		List<B> objects2 = []
 		Long num
 		String name
 		List<String> strings = []
@@ -122,6 +123,23 @@ class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
 		Edge e = a.addEdge('b', b)
 		e['_type'] = 'undefined'
 		assert mapper.fromGraph(a) == [b: [name: 'b1']]
+	}
+	
+	@Test
+	void fromGraphMap() {
+		Vertex a = g.addVertex(null)
+		
+		Vertex b1 = g.addVertex(null)
+		Vertex b2 = g.addVertex(null)
+		b1.name = 'b1'
+		b2.name = 'b2'
+		
+		Edge eb1 = a.addEdge("bMap", b1)
+		Edge eb2 = a.addEdge("bMap", b2)
+		eb1['_key'] = 'b1Key'
+		eb2['_key'] = 'b2Key'
+		
+		assert mapper.fromGraph(a) == [bMap : [b1Key: [name: 'b1'], b2Key: [name: 'b2']]]
 	}
 	
 	@Test
