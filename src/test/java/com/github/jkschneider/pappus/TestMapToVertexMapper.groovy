@@ -6,6 +6,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark
 import com.tinkerpop.blueprints.Direction
 import com.tinkerpop.blueprints.Edge
 import com.tinkerpop.blueprints.Graph
@@ -13,7 +14,7 @@ import com.tinkerpop.blueprints.Vertex
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph
 import com.tinkerpop.gremlin.groovy.Gremlin
 
-class TestMapToVertexMapper /*extends AbstractBenchmark*/ {
+class TestMapToVertexMapper extends AbstractBenchmark {
 	class A {
 		B b
 		List<B> objects = []

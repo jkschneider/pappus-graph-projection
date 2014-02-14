@@ -2,7 +2,9 @@ package com.github.jkschneider.pappus
 
 import org.junit.Test
 
-class TestRecursiveMapDecorator {
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
+
+class TestRecursiveMapDecorator extends AbstractBenchmark {
 	RecursiveMapDecorator hasher = new RecursiveMapDecorator()
 	
 	class A {
