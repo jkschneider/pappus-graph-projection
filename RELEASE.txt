@@ -16,6 +16,25 @@ gpg --allow-secret-key-import --import private.key
 
 0.4.  Make sure the github ssh private key (id_rsa) is loaded into the ssh keyring (http://stackoverflow.com/questions/4520578/sharing-ssh-keys).
 
+0.5.  Configure settings.xml located in ~/.m2 to:
+
+<settings>
+  ...
+  <servers>
+    <server>
+      <id>sonatype-nexus-snapshots</id>
+      <username>your-jira-id</username>
+      <password>your-jira-pwd</password>
+    </server>
+    <server>
+      <id>sonatype-nexus-staging</id>
+      <username>your-jira-id</username>
+      <password>your-jira-pwd</password>
+    </server>
+  </servers>
+  ...
+</settings>
+
 Instructions for how to perform a release:
 
 1.  mvn clean deploy
